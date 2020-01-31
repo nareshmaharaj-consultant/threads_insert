@@ -1,0 +1,5 @@
+Manifest-Version: 1.0
+Main-Class: RunnableConnectionMongoDb
+Class-Path: mongodb-driver-sync-3.12.1.jar mongodb-driver-core-3.12.1.ja
+ r bson-3.12.1.jar
+
