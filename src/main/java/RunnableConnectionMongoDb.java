@@ -12,12 +12,13 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
 
 public class RunnableConnectionMongoDb {
 
     static boolean read = false;
-    static long start = 0;
-    static long end = 0;
+    static AtomicLong start = new AtomicLong(0);
+    static AtomicLong end = new AtomicLong(0);
     static AtomicInteger atomicInt = new AtomicInteger(0);
 
     static int numberOfConnections = 50;
@@ -75,7 +76,7 @@ public class RunnableConnectionMongoDb {
 
         int numberOfDocsPerThread = numberOfDocuments / numberOfConnections;
 
-        start = System.currentTimeMillis();
+        start.set( System.currentTimeMillis() );
 
         for ( int i=0; i < numberOfConnections; i++ )
         {
@@ -155,14 +156,14 @@ class RunnableConnection implements Runnable {
             collection.bulkWrite( ops, new BulkWriteOptions().ordered(false) );
         }
 
-        RunnableConnectionMongoDb.end = System.currentTimeMillis();
+        RunnableConnectionMongoDb.end.set( Math.max( System.currentTimeMillis(), RunnableConnectionMongoDb.end.get() ) );
         int currentNumThreads = RunnableConnectionMongoDb.atomicInt.getAndDecrement();
         System.out.println("Thread " +  threadName + " exiting. Threads running still: " + currentNumThreads);
 
         // String for stats either seconds or ms
         String outTime = "";
-        long taken = (RunnableConnectionMongoDb.end - RunnableConnectionMongoDb.start);
-        if ( (RunnableConnectionMongoDb.end - RunnableConnectionMongoDb.start) <= 1000 )
+        long taken = (RunnableConnectionMongoDb.end.get() - RunnableConnectionMongoDb.start.get());
+        if ( (RunnableConnectionMongoDb.end.get() - RunnableConnectionMongoDb.start.get()) <= 1000 )
             outTime = taken + " milliseconds.";
         else
             outTime = ( taken / 1000 ) + " seconds.";
