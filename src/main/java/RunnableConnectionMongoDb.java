@@ -43,7 +43,7 @@ public class RunnableConnectionMongoDb {
                 if ( args[i].equalsIgnoreCase( "-b" ) ) {
                     batchSize = Integer.parseInt(args[i+1]);
                 }
-                if ( args[i].equalsIgnoreCase( "-c" ) ) {
+                if ( args[i].equalsIgnoreCase( "-u" ) ) {
                     uri = args[i+1];
                 }
                 if ( args[i].equalsIgnoreCase( "-t" ) ) {
@@ -65,7 +65,7 @@ public class RunnableConnectionMongoDb {
                         args[i].equalsIgnoreCase( "-h" ))
                 {
                     System.out.println("\nUsage e.g.: java -jar THREADS.jar -t 10 -d 5000 -f 36 -b 100" +
-                            "\n\n\t -c connection string uri: e.g:  mongodb+srv://user:pwd@host/test?retryWrites=true&w=majority" +
+                            "\n\n\t -u connection uri: e.g:  mongodb+srv://user:pwd@host/test?retryWrites=true&w=majority" +
                             "\n\n\t -t 10 -> [number of threads / connections] " +
                             "\n\t -d 5000 -> [number of documents] " +
                             "\n\t -f 36 -> [filler size i.e. 36 --> Doc size of 36Kb] ( valu is a double e.g. 0.5 is 1/2 Kb )" +
