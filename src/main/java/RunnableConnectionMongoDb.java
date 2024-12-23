@@ -64,7 +64,7 @@ public class RunnableConnectionMongoDb {
                 if (    args[i].equalsIgnoreCase( "help" ) ||
                         args[i].equalsIgnoreCase( "-h" ))
                 {
-                    System.out.println("\nUsage e.g.: java -jar THREADS.jar -t 10 -d 5000 -f 36 -b 100" +
+                    System.out.println("\nUsage: java -jar THREADS.jar -t 10 -d 5000 -f 36 -b 100" +
                             "\n\n\t -u connection uri: e.g:  mongodb+srv://user:pwd@host/test?retryWrites=true&w=majority" +
                             "\n\n\t -t 10 -> [number of threads / connections] " +
                             "\n\t -d 5000 -> [number of documents] " +
