@@ -71,8 +71,8 @@ public class RunnableConnectionMongoDb {
                             "\n\t -f 36 -> [filler size i.e. 36 --> Doc size of 36Kb] ( valu is a double e.g. 0.5 is 1/2 Kb )" +
                             "\n\t -b 100 -> [batch size i.e. 100] " +
                             "\n\n\t default: -t 50 -d 100 -f 0 " +
-                            "\n\n\t -r mydb -> [database name] " +
-                            "\n\t -x mycollection -> [collection name] " +
+                            "\n\n\t -r mydb -> [mongo database name] " +
+                            "\n\t -x mycollection -> [mongodb collection name] " +
                             "\n");
                     System.exit(0);
                 }
