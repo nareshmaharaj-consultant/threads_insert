@@ -25,6 +25,8 @@ public class RunnableConnectionMongoDb {
     static int numberOfDocuments = 100;
     static double fillKb = 0;
     static int batchSize = 1;
+    static String db = "mydb";
+    static String coll = "mydata";
 
     /*
         uri = "mongodb+srv://user:password@erbd-7dos8.mongodb.net/test?retryWrites=true&w=majority";
@@ -53,6 +55,12 @@ public class RunnableConnectionMongoDb {
                 if ( args[i].equalsIgnoreCase( "-f" ) ) {
                     fillKb = Double.parseDouble(args[i+1]);
                 }
+                if ( args[i].equalsIgnoreCase( "-r" ) ) {
+                    db = args[i+1];
+                }
+                if ( args[i].equalsIgnoreCase( "-x" ) ) {
+                    coll = args[i+1];
+                }
                 if (    args[i].equalsIgnoreCase( "help" ) ||
                         args[i].equalsIgnoreCase( "-h" ))
                 {
@@ -63,6 +71,8 @@ public class RunnableConnectionMongoDb {
                             "\n\t -f 36 -> [filler size i.e. 36 --> Doc size of 36Kb] ( valu is a double e.g. 0.5 is 1/2 Kb )" +
                             "\n\t -b 100 -> [batch size i.e. 100] " +
                             "\n\n\t default: -t 50 -d 100 -f 0 " +
+                            "\n\n\t -r mydb -> [database name] " +
+                            "\n\t -x mycollection -> [collection name] " +
                             "\n");
                     System.exit(0);
                 }
@@ -70,8 +80,8 @@ public class RunnableConnectionMongoDb {
         }
 
         MongoClient mongoClient = MongoClients.create(uri);
-        MongoDatabase database = mongoClient.getDatabase("mydb");
-        MongoCollection<Document> collection = database.getCollection("data");
+        MongoDatabase database = mongoClient.getDatabase(db);
+        MongoCollection<Document> collection = database.getCollection(coll);
         collection.deleteMany(new Document());
 
         int numberOfDocsPerThread = numberOfDocuments / numberOfConnections;
@@ -102,8 +112,8 @@ class RunnableConnection implements Runnable {
 
     public void run() 
     {
-        database = mongoClient.getDatabase("mydb");
-        collection = database.getCollection("data");
+        database = mongoClient.getDatabase(RunnableConnectionMongoDb.db);
+        collection = database.getCollection(RunnableConnectionMongoDb.coll);
 
         RunnableConnectionMongoDb.atomicInt.incrementAndGet();
 
