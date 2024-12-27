@@ -1,6 +1,9 @@
+import com.mongodb.ReadPreference;
+import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoClients;
 import com.mongodb.client.MongoCollection;
+import com.mongodb.client.MongoCursor;
 import com.mongodb.client.MongoDatabase;
 import com.mongodb.client.model.BulkWriteOptions;
 import com.mongodb.client.model.InsertOneModel;
@@ -10,6 +13,7 @@ import org.bson.Document;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Iterator;
 import java.util.Random;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
@@ -27,6 +31,7 @@ public class RunnableConnectionMongoDb {
     static int batchSize = 1;
     static String db = "mydb";
     static String coll = "mydata";
+    static boolean readAllData = false;
 
     /*
         uri = "mongodb+srv://user:password@erbd-7dos8.mongodb.net/test?retryWrites=true&w=majority";
@@ -61,18 +66,24 @@ public class RunnableConnectionMongoDb {
                 if ( args[i].equalsIgnoreCase( "-x" ) ) {
                     coll = args[i+1];
                 }
+                if ( args[i].equalsIgnoreCase( "--read-all" ) ) {
+                    System.out.println(i + " " + args[i]);
+                    readAllData = true;
+                }                
                 if (    args[i].equalsIgnoreCase( "help" ) ||
-                        args[i].equalsIgnoreCase( "-h" ))
+                        args[i].equalsIgnoreCase( "-h" ))                                             
                 {
                     System.out.println("\nUsage: java -jar THREADS.jar -t 10 -d 5000 -f 36 -b 100" +
-                            "\n\n\t -u connection uri: e.g:  mongodb+srv://user:pwd@host/test?retryWrites=true&w=majority" +
-                            "\n\n\t -t 10 -> [number of threads / connections] " +
+                            "\n\n\t -u connection uri: e.g:  \"mongodb://localhost:27017,localhost:27018,localhost:27019\"" +
+                            "\n\t -t 10 -> [number of threads / connections] " +
                             "\n\t -d 5000 -> [number of documents] " +
                             "\n\t -f 36 -> [filler size i.e. 36 --> Doc size of 36Kb] ( valu is a double e.g. 0.5 is 1/2 Kb )" +
-                            "\n\t -b 100 -> [batch size i.e. 100] " +
-                            "\n\n\t default: -t 50 -d 100 -f 0 " +
-                            "\n\n\t -r mydb -> [mongo database name] " +
+                            "\n\t -b 100 -> [batch size i.e. 100] " +                           
+                            "\n\t -r mydb -> [mongo database name] " +
                             "\n\t -x mycollection -> [mongodb collection name] " +
+                            "\n\t --read-all Read all Data as a scan " +
+                            "\n\t    e.g.: RunnableConnectionMongoDb -u \"mongodb://localhost:27017,localhost:27018,localhost:27019\" --read-all -c db2 -x bank" +
+                            "\n\n\t default writes: -t 50 -d 100 -f 0 " +
                             "\n");
                     System.exit(0);
                 }
@@ -81,12 +92,29 @@ public class RunnableConnectionMongoDb {
 
         MongoClient mongoClient = MongoClients.create(uri);
         MongoDatabase database = mongoClient.getDatabase(db);
-        MongoCollection<Document> collection = database.getCollection(coll);
-        collection.deleteMany(new Document());
-
-        int numberOfDocsPerThread = numberOfDocuments / numberOfConnections;
+        // MongoCollection<Document> collection = 
+        // database.getCollection(coll).withReadPreference(ReadPreference.primary());
+        MongoCollection<Document> collection = 
+            database.getCollection(coll).withReadPreference(ReadPreference.nearest());
 
         start.set( System.currentTimeMillis() );
+
+        if ( readAllData == false ) {
+            collection.deleteMany(new Document());
+        }
+        else
+        {            
+            FindIterable<Document> iterDoc = collection.find();
+            Iterator<Document> it = iterDoc.iterator();
+            while (it.hasNext()) {
+                System.out.println(it.next());                       
+            }
+            end.set( System.currentTimeMillis() );
+            System.out.println("Time taken to read all data: " + (end.get() - start.get()) + " milliseconds.");
+            System.exit(0);
+        }
+    
+        int numberOfDocsPerThread = numberOfDocuments / numberOfConnections;
 
         for ( int i=0; i < numberOfConnections; i++ )
         {
