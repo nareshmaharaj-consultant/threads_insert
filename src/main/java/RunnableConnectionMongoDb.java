@@ -18,7 +18,7 @@ import java.util.Random;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
-// Need to check this code still works.
+// Need to check this code still works
 public class RunnableConnectionMongoDb {
 
     static boolean read = false;
